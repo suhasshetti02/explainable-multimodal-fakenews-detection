@@ -91,10 +91,6 @@ flowchart TD
    npm run dev
    ```
 
-## ⚠️ Known Limitations & Disclaimers
-- **API Dependency:** The "Forensic Override" system relies entirely on valid SerpAPI and Gemini API keys. If these keys are invalid or hit rate limits, the system will fall back to the PyTorch neural network, which may confidently mislabel factually false (but grammatically correct) text as "REAL".
-- **Performance:** Running three transformer models on a local CPU causes significant inference latency (1-3 minutes per request).
-- **Security:** This is a research/prototype tool. The API endpoints are currently unprotected and file uploads are saved locally without size restrictions. Do not deploy to a public URL without adding proper authentication and input sanitization.
 
 ## 🔮 Future Improvements
 - **ONNX/Quantization:** Convert PyTorch models to ONNX to drastically reduce CPU inference time.
