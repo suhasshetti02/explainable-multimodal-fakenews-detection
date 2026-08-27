@@ -34,6 +34,17 @@ export const analysisApi = {
   },
 
   /**
+   * Verify deepfake video
+   * @param {FormData} formData - Contains the video file
+   * @returns {Promise<Object>}
+   */
+  videoVerify: async (formData) => {
+    return apiClient.post('/video_verify', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  /**
    * Get analysis history (future endpoint)
    * @param {Object} filters - Filter parameters
    * @returns {Promise<Array>}

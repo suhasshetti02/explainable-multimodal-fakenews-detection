@@ -1,2 +1,10 @@
 .env
-model_multimodal
+model_multimodal/
+__pycache__/
+venv/
+uploads/
+video_uploads/
+temp_audio.wav
+result_video.json
+*.pyc
+*.log

@@ -116,7 +116,7 @@ def ai_summarise(data:EvidenceRequest):
         traceback.print_exc()
         print(f"ERROR: {e}")
         raise HTTPException(status_code=500,detail=str(e))
-    
+     
 @app.post('/video_verify')
 async def verify_video(
         video : UploadFile = File(...)

@@ -21,8 +21,7 @@ import {
   AlertTriangle,
   Brain
 } from 'lucide-react';
-
-const API_BASE = 'http://localhost:8000';
+import { analysisApi } from '../../services/api/endpoints';
 
 // Reusable Components
 const ForensicCard = ({ children, title, icon: Icon, className = "", border = "border-zinc-800" }) => (
@@ -138,14 +137,7 @@ function VideoAnalysisDashboard() {
       setTimeout(() => setLoadingMessage("Generating verification questions..."), 3000);
       setTimeout(() => setLoadingMessage("Analyzing content authenticity..."), 8000);
 
-      const response = await fetch(`${API_BASE}/video_verify`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error('Video analysis failed');
-
-      const data = await response.json();
+      const data = await analysisApi.videoVerify(formData);
       
       // Calculate verdict locally as per user snippet logic
       const answers = Array.isArray(data.verdict) ? data.verdict : [];
@@ -182,7 +174,7 @@ function VideoAnalysisDashboard() {
 
     } catch (error) {
       console.error('Error:', error);
-      alert('Video analysis failed. Please ensure the backend is running.');
+      // Error toast handled by interceptor
     } finally {
       setAnalyzing(false);
     }

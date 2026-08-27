@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
-  TIMEOUT: 60000, // 60 seconds for ML processing
+  TIMEOUT: 600000, // 10 minutes for ML processing
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
 };

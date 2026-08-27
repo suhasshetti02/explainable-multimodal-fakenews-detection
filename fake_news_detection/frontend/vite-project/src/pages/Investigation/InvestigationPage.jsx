@@ -22,8 +22,8 @@ import {
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import '../../App.css';
-
-const API_BASE = 'http://localhost:8000';
+import { analysisApi } from '../../services/api/endpoints';
+import { API_CONFIG } from '../../config/constants';
 
 const ForensicCard = ({ children, title, icon: Icon, className = "", border = "border-zinc-800", headerAction }) => (
   <motion.div 
@@ -109,18 +109,11 @@ export default function InvestigationPage() {
         formData.append('title', title);
         formData.append('image', image);
   
-        const response = await fetch(`${API_BASE}/analyze`, {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (!response.ok) throw new Error('Analysis failed');
-  
-        const data = await response.json();
+        const data = await analysisApi.analyze(formData);
         setResult(data);
       } catch (error) {
         console.error('Error:', error);
-        alert('Analysis failed. Please ensure the backend is running.');
+        // Error toast is handled by apiClient interceptor
       } finally {
         clearInterval(messageInterval);
         setLoading(false);
@@ -133,17 +126,11 @@ export default function InvestigationPage() {
         if (!result) return;
         setGeneratingAI(true);
         try {
-          const response = await fetch(`${API_BASE}/ai_summarise`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ evidence: result }),
-          });
-          if (!response.ok) throw new Error('AI summary generation failed');
-          const data = await response.json();
+          const data = await analysisApi.generateAIReport(result);
           setAiSummary(data.summary);
         } catch (error) {
           console.error('Error:', error);
-          alert('AI summary generation failed');
+          // Error toast is handled by apiClient interceptor
         } finally {
           setGeneratingAI(false);
         }
@@ -484,7 +471,7 @@ function VisualAttentionCard({ result, imagePreview }) {
       if(!result.image_analysis?.file) return imagePreview
       const basename = result.image_analysis.file.split('/').pop()
       const gradcamfilename = `${basename}`
-      return `${API_BASE}/${gradcamfilename}`;
+      return `${API_CONFIG.BASE_URL}/${gradcamfilename}`;
     }
     const heatmapUrl = getGradCamurl();
   
