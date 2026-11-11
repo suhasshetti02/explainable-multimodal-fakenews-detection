@@ -1,99 +1,99 @@
-# TruthLab - Multimodal Fake News Forensics
+# TruthLab — Multimodal Fake News Forensics
 
-![TruthLab Overview](https://img.shields.io/badge/Status-Active-success)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
-![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white)
+TruthLab is a multimodal news-claim analysis prototype. It combines a trained text-and-image classifier with external search snippets and LLM-assisted interpretation. The repository also contains a separate video-forensics flow that extracts audio, obtains a transcript, and asks a model to assess the video's claims.
 
-TruthLab is an advanced, multimodal digital forensic tool designed to detect fake news and verify claims by fusing neural network predictions (text and image analysis) with live web fact-checking (Forensic Search & LLM verification).
+> **Project status:** Experimental decision-support tool. Model output, search snippets, generated explanations, and video analysis are not definitive fact-checks. Human verification of primary sources is required.
 
-## 🚀 The Problem & Our Solution
-Fake news spreads rapidly through text, altered images, and videos. Relying solely on a single modality or a black-box AI model is insufficient because neural networks do not possess actual world knowledge—they only detect linguistic styles or image manipulations.
+## Capabilities visible in the source
 
-**The Solution:** TruthLab processes news claims through a multimodal neural network (MuRIL + Vision Transformer) and simultaneously performs a live "Forensic Fact-Check" via Google Search and Gemini. A priority-based fusion algorithm then combines these results, allowing the live fact-check to override the neural network if a factual lie is detected.
+- Text/image analysis through a PyTorch model combining MuRIL text features and a torchvision Vision Transformer image encoder using a cross-attention fusion layer.
+- Binary fake/real output and a claim-topic classification head.
+- Text-token and image explanation utilities, including SHAP-related code and image gradient / attention visualisation helpers.
+- External search through SerpAPI for evidence snippets.
+- Gemini-based explanatory / fallback verification logic.
+- Video workflow that extracts audio using MoviePy, transcribes in 30-second chunks through Sarvam AI (configured for Kannada), and evaluates the transcript/video through a Gemini model.
+- React/Vite interface for investigation, dashboard, and video-forensics workflows.
 
-## 🎯 Key Features
-- **Multimodal AI Fusion:** Custom PyTorch architecture combining MuRIL (text) and ViT (image) via Cross-Attention.
-- **Visual Explainability:** Uses Grad-CAM to generate heatmaps highlighting manipulated or suspicious regions in images.
-- **Forensic Override System:** Automatically queries SerpAPI and uses Gemini to fact-check claims against known credible sources (e.g., Reuters, AltNews).
-- **Video Forensics:** Extracts audio, transcribes it using Sarvam AI, and interrogates the video's authenticity from "Skeptic", "Defender", and "Neutral" perspectives.
-- **Zero-Shot Claim Classification:** Categorizes the news topic (e.g., Politics, Sports, Health) using XLM-RoBERTa.
+## Technology stack
 
-## 🏗️ Architecture
+| Layer | Technologies |
+|---|---|
+| Frontend | React 18, Vite, React Router, Tailwind CSS |
+| API | Python, FastAPI |
+| Deep learning | PyTorch, torchvision, Hugging Face Transformers |
+| Text model | Google MuRIL |
+| Image model | torchvision ViT-B/16 |
+| Explanations | SHAP and custom image/token attribution helpers |
+| External services | SerpAPI, Google Gemini, Sarvam AI |
+| Media processing | MoviePy, FFmpeg-related tooling, pydub / Whisper dependencies |
 
-```mermaid
-flowchart TD
-    User([User]) -->|Uploads Image/Text| UI(React Frontend)
-    UI -->|POST /analyze| API(FastAPI Backend)
-    
-    API -->|Text| MuRIL(MuRIL Encoder)
-    API -->|Image| ViT(ViT Encoder)
-    
-    MuRIL --> Fusion(Cross-Attention Fusion)
-    ViT --> Fusion
-    Fusion --> FNH(Fake/Real Head)
-    
-    API -->|Query| SerpAPI(Google Search)
-    SerpAPI -->|Results| FA(Forensic Analyzer)
-    FA -->|If Uncertain| Gemini(Gemini Fallback)
-    
-    FNH --> VF(Verdict Fusion Module)
-    FA --> VF
-    Gemini --> VF
-    
-    VF -->|Final Verdict & Evidence| API
-    API --> UI
+## Architecture
+
+```text
+React / Vite client
+  ├── POST /analyze ──► FastAPI
+  │                       ├── MuRIL text encoder
+  │                       ├── ViT image encoder
+  │                       ├── cross-attention / classifier heads
+  │                       └── SerpAPI evidence + Gemini assistance
+  ├── POST /ai_summarise ─► Gemini explanation
+  └── POST /video_verify ─► video/audio extraction
+                              └── Sarvam transcription + Gemini review
 ```
 
-## 🛠️ Tech Stack
-- **Frontend:** React, Vite, Tailwind CSS, Framer Motion, Axios
-- **Backend:** FastAPI, Python, Uvicorn
-- **Machine Learning:** PyTorch, HuggingFace Transformers (MuRIL, ViT, XLM-RoBERTa), SHAP, OpenCV
-- **External APIs:** SerpAPI (Google Search), Google Gemini-1.5-Flash, Sarvam AI (Transcription)
+## Repository layout
 
-## 💻 Running Locally
+- `fake_news_detection/backend/` — FastAPI application, model, prediction, fusion, and video helpers.
+- `fake_news_detection/frontend/vite-project/` — React/Vite client.
+- `fake_news_detection/README.md` — nested project notes.
+- Root `README.md` — project overview.
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- System `ffmpeg` installed (required for video audio extraction)
+## Run locally
 
-### Backend Setup
-1. Navigate to the `backend` directory.
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Create a `.env` file in the `backend` directory with your API keys:
-   ```env
-   gemini_api_key2=your_gemini_api_key_here
-   SERP_API_KEY=your_serpapi_key_here
-   SARVAM_API_KEY=your_sarvam_api_key_here
-   ```
-5. Start the server:
-   ```bash
-   python -m uvicorn server:app --reload
-   ```
+Requirements: Python 3.10+, Node.js 18+, FFmpeg, model weights, and credentials for services you enable.
 
-### Frontend Setup
-1. Navigate to the `frontend/vite-project` directory.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+Backend:
 
+```bash
+cd fake_news_detection/backend
+python -m venv .venv
+# Activate the environment
+pip install -r requirements.txt
+```
 
-## 🔮 Future Improvements
-- **ONNX/Quantization:** Convert PyTorch models to ONNX to drastically reduce CPU inference time.
-- **Asynchronous Execution:** Refactor the inference pipeline to run the ML models and the SerpAPI web scraping concurrently via `asyncio.gather`.
-- **Cloud Storage:** Migrate local file uploads (`/uploads`) to AWS S3.
-- **Database:** Integrate PostgreSQL to store verification history and user sessions.
+Create a backend environment file with the credential names read by the code (for example `gemini_api_key2`, `SERP_API_KEY`, and `SARVAM_API_KEY`). The backend loads model weights from `model_multimodal/best_model.pth`; ensure the artifact and compatible model files exist before starting the service.
+
+Start FastAPI with the repository's configured entry module, for example:
+
+```bash
+uvicorn server:app --host 0.0.0.0 --port 8000
+```
+
+Frontend:
+
+```bash
+cd fake_news_detection/frontend/vite-project
+npm install
+npm run dev
+```
+
+## API routes implemented
+
+- `POST /analyze` — multipart form fields `title` and `image`.
+- `POST /ai_summarise` — accepts an evidence object and returns a generated summary.
+- `POST /video_verify` — accepts a video file and returns analysis output.
+- `GET /` — basic server health response.
+
+## Limitations and security notes
+
+- The backend CORS configuration currently allows all origins; restrict it before deployment.
+- Uploaded filenames are used to construct local paths and files are stored under local upload directories. Add generated filenames, strict file validation, size limits, cleanup, and isolated storage before production.
+- Model accuracy depends on the exact trained weights and evaluation data; do not quote accuracy without a reproducible evaluation report.
+- SerpAPI results are snippets / search results, not proof that a claim is true or false. Gemini output may be wrong or outdated.
+- The video transcription code is configured for Kannada and uses an external Sarvam endpoint; it should not be described as language-agnostic transcription.
+- The current explanation helpers and classifier outputs require careful interpretation; a heatmap is not proof that an image is manipulated.
+- Keep all provider credentials and model artifacts out of source control. Rotate any credential that has ever been committed.
+
+## License
+
+See repository licensing and model / dataset terms.
