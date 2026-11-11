@@ -97,3 +97,20 @@ flowchart TD
 - **Asynchronous Execution:** Refactor the inference pipeline to run the ML models and the SerpAPI web scraping concurrently via `asyncio.gather`.
 - **Cloud Storage:** Migrate local file uploads (`/uploads`) to AWS S3.
 - **Database:** Integrate PostgreSQL to store verification history and user sessions.
+
+---
+
+<!-- SCREENSHOT-GALLERY:START -->
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/01-screenshot-2026-08-20-112753.png" width="49%" alt="01 screenshot 2026 08 20 112753"/>
+  <img src="screenshots/02-screenshot-2026-08-20-142332.png" width="49%" alt="02 screenshot 2026 08 20 142332"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/03-screenshot-2026-08-20-151946.png" width="49%" alt="03 screenshot 2026 08 20 151946"/>
+  <img src="screenshots/04-screenshot-2026-08-20-155208.png" width="49%" alt="04 screenshot 2026 08 20 155208"/>
+</p>
+
+<!-- SCREENSHOT-GALLERY:END -->
